@@ -1,0 +1,158 @@
+# ---------------------------------------------------------------------------
+# update-readme.yml - stamp a "last updated" date into the profile README
+#
+# Self-contained by design. It uses actions/checkout plus a plain shell step and
+# the built-in GITHUB_TOKEN. No third-party action, no secret, nothing to trust
+# beyond GitHub's own first-party action.
+#
+# CONTRACT WITH README.md
+# -----------------------
+# The README must contain these two marker comments, each alone on its own line:
+#
+#     <!-- LAST_UPDATED:START -->
+#     Last updated: 2026-01-01
+#     <!-- LAST_UPDATED:END -->
+#
+# Everything between the markers is replaced with a single stamp line. The job logs a
+# warning and exits successfully without touching anything when the README is absent,
+# when either marker is missing, when both markers share one line, when either marker
+# appears more than once, or when the end marker precedes the start marker. The
+# workflow is therefore safe to ship before the markers exist: every scheduled run is
+# a clean no-op until they are added.
+#
+# IDEMPOTENCE
+# -----------
+# The stamp has day granularity. Running the workflow twice in the same UTC day
+# produces a byte-identical README, `git diff --quiet` reports no change, and the
+# job exits without committing. Empty commits are never created.
+# ---------------------------------------------------------------------------
+
+name: update-readme
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 04:23 UTC.
+    - cron: "23 4 * * *"
+
+# Least privilege: one commit to this repository, nothing else.
+permissions:
+  contents: write
+
+# Serialise runs so a scheduled run and a manual run cannot race on a push.
+concurrency:
+  group: update-readme-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          # Full history is not needed; a single commit is enough to commit on top of.
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Rewrite the stamp between the markers
+        id: rewrite
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          readme="README.md"
+          start='<!-- LAST_UPDATED:START -->'
+          end='<!-- LAST_UPDATED:END -->'
+
+          if [ ! -f "$readme" ]; then
+            echo "::warning::README.md not found at the repository root. Nothing to stamp."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! grep -qF "$start" "$readme"; then
+            echo "::warning::marker $start not found in README.md. Nothing to stamp."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! grep -qF "$end" "$readme"; then
+            echo "::warning::marker $end not found in README.md. Nothing to stamp."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Guard against both markers sitting on the same line, which the awk
+          # pass below cannot handle correctly.
+          if grep -F "$start" "$readme" | grep -qF "$end"; then
+            echo "::warning::both markers are on the same line. Put each marker on its own line."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Require exactly one of each marker. With a duplicate pair the awk pass
+          # below would treat the text between the two blocks as replaceable and
+          # delete it, so refuse rather than guess.
+          start_count=$(grep -cF "$start" "$readme" || true)
+          end_count=$(grep -cF "$end" "$readme" || true)
+          if [ "$start_count" -ne 1 ] || [ "$end_count" -ne 1 ]; then
+            echo "::warning::expected exactly one of each marker, found start=$start_count end=$end_count. Nothing to stamp."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Require START before END. Reversed markers would make awk drop every line
+          # from START to end of file.
+          start_line=$(grep -nF "$start" "$readme" | cut -d: -f1)
+          end_line=$(grep -nF "$end" "$readme" | cut -d: -f1)
+          if [ "$start_line" -ge "$end_line" ]; then
+            echo "::warning::start marker is on line $start_line, end marker on line $end_line. Order them start-then-end. Nothing to stamp."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          stamp="Last updated: $(date -u '+%Y-%m-%d')"
+
+          # Copy the file, replacing everything strictly between the markers with
+          # the single stamp line. The markers themselves are preserved.
+          awk -v s="$start" -v e="$end" -v stamp="$stamp" '
+            index($0, s) { print; print stamp; inside = 1; next }
+            index($0, e) { inside = 0 }
+            inside       { next }
+                         { print }
+          ' "$readme" > README.md.stamped
+
+          # The rewrite must preserve both markers. If it did not, awk misbehaved and
+          # the original file is left untouched.
+          if ! grep -qF "$start" README.md.stamped || ! grep -qF "$end" README.md.stamped; then
+            echo "::error::the rewrite lost a marker. README.md was not modified."
+            rm -f README.md.stamped
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+          mv README.md.stamped "$readme"
+
+          if git diff --quiet -- "$readme"; then
+            echo "README.md already carries the current stamp. No commit needed."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "stamp updated to: $stamp"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push if the stamp changed
+        if: steps.rewrite.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m "chore(readme): stamp last-updated date [skip ci]"
+          # Plain push. Never force, never rebase over someone else's work: if a
+          # human pushed in the last few seconds this fails and the next
+          # scheduled run picks it up.
+          git push
