@@ -29,7 +29,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/jihad-daab"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logoColor=white" /></a>
+  <a href="https://www.linkedin.com/in/jihad-daab"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge" /></a>
   <a href="https://www.credly.com/users/jihad-d"><img alt="Credly" src="https://img.shields.io/badge/Credly-FF6B00?style=for-the-badge&logo=credly&logoColor=white" /></a>
   <a href="https://github.com/erfzrezr"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
 </p>
@@ -57,8 +57,8 @@ level.
 
 <table>
   <tr>
-    <th>I work with</th>
-    <th>I'm learning</th>
+    <th>Work with</th>
+    <th>Learning</th>
     <th>Certified in</th>
   </tr>
   <tr valign="top">
@@ -187,7 +187,7 @@ room-specific exploit detail, in line with TryHackMe's guidance on not spoiling 
 
 </details>
 
-<sub>These are written up and ready to publish as repositories. Say the word and they go public.</sub>
+<sub>Each project is documented as a methodology and design record. Supporting files land as they are written up.</sub>
 
 ## Education
 
