@@ -52,27 +52,33 @@ Behaviour:
 Renders `github-metrics.svg` with `lowlighter/metrics`.
 
 The `base` set is `header, activity, community, repositories, metadata`, all of which
-are drawn from public repositories and contribution activity. The account has neither
-yet, so the image would be close to empty. The workflow therefore ships with
+are drawn from public repositories and contribution activity. The account currently has
+one public repository, this one, and no contribution history, so the image would be close
+to empty. The workflow therefore ships with
 `workflow_dispatch:` only and a commented-out weekly `schedule:` (`17 5 * * 0`), the
 same gate `snake.yml` uses. Uncomment the `schedule:` block once there is a public
 repository and a few months of commits. A manual run is safe at any time and is the
 way to preview the output first.
 
 Enabling metrics is a two-part change. The workflow trigger is one part. The other is
-the profile README, which carries the metrics `<img>` inside an HTML comment: the URL
-404s until the workflow has committed `github-metrics.svg` at least once, so the image
-stays commented out until then.
+the profile README, which carries the metrics `<img>` inside the HTML comment headed
+`GitHub statistics.`, below the Education table: the URL 404s until the workflow has
+committed `github-metrics.svg` at least once, so the image stays commented out until then.
 
 **Setup is required before the first successful run.** `lowlighter/metrics` reads
 account-level data, which the built-in `GITHUB_TOKEN` cannot do, so it needs a
 classic personal access token stored as the repository secret `METRICS_TOKEN`.
 
 1. Create the token: <https://github.com/settings/tokens/new?scopes=read:user&description=METRICS_TOKEN>
-   - `read:user` — required.
-   - `repo` — optional, and only if private repositories should be counted in the
-     statistics. It grants full read/write on every repository you own, so leave it
-     off unless you need private stats.
+   - The action's own setup documentation states that no scopes are required, and that
+     scopes are added per feature. The link above pre-ticks `read:user`, which is the
+     scope its documentation associates with user-level data. The `base` set configured
+     here reads public data, so a token with nothing ticked also works.
+   - `repo` — only if private repositories should be counted in the statistics. It grants
+     full read/write on every repository you own, so leave it off unless you need private
+     stats.
+   - Add any further scope only when a plugin you have enabled asks for it, one at a time,
+     against the action's documentation rather than from memory.
 2. Add the secret: <https://github.com/erfzrezr/erfzrezr/settings/secrets/actions/new>
    - Name `METRICS_TOKEN`, value the token string.
 3. Run it once by hand: Actions tab, `metrics`, "Run workflow".
@@ -88,9 +94,9 @@ serving a stale image.
 
 ## snake.yml: disabled on purpose
 
-`Platane/snk` animates a snake eating the contribution graph. The account currently
-has no contribution history, so the animation would render as an empty grid. That is
-a worse first impression than no animation.
+`Platane/snk` animates a snake eating the contribution graph. The account has no
+contribution history yet, so the animation would render as an empty grid. That is a worse
+first impression than no animation.
 
 The workflow is therefore committed with `workflow_dispatch:` only and a
 commented-out `schedule:` block that would otherwise run every 12 hours
@@ -115,9 +121,11 @@ Enable it after roughly three months of steady commits, when
 
 ## Other things intentionally left out
 
-- **Streak card, trophy card, and activity graph.** All three render as zeroes on a
-  new account. They are present in the README as HTML comments, to be uncommented
-  later.
+- **Streak card, trophy card, and activity graph.** All three render as zeroes or a flat
+  line on an account with no history. None of them is in the profile README, in a comment
+  or otherwise: the only card markup there is the stats card, the top-languages card, and
+  the metrics SVG, all three inside the `GitHub statistics.` comment. Adding one later is a
+  manual edit, not an uncomment.
 - **Visitor-counter badges.** `komarev.com/ghpvc` and `visitor-badge.laobi.icu` both
   failed availability checks. A broken image on the first line of a profile is worse
   than no counter.

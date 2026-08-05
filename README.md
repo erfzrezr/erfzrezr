@@ -138,7 +138,7 @@ Grouped by the phase of an engagement it belongs to.
 - Security monitoring and threat hunting across web development projects.
 - System audits and vulnerability assessments, then remediation of the weaknesses found.
 - Security controls integrated with the development teams and checked against industry standards.
-- Configuration hardening and streamlined incident response protocols, which cut response time.
+- Configuration hardening and streamlined incident response protocols.
 - Designed and implemented AI chatbot functionality that cut customer-support response time by 30%.
 
 **Marjane** — technical support · *April 2022 to May 2022*
@@ -152,20 +152,24 @@ Grouped by the phase of an engagement it belongs to.
 <details>
 <summary><b>AI-powered security and end-to-end testing platform</b> — the applied side of my PhD</summary>
 
-Machine learning and reinforcement learning driving automated security testing. An RL agent decides
-which action to take next against a target; supervised anomaly detection flags responses worth a
-human's attention; a patch-validation stage replays a finding after the fix lands. Research
-prototype, no benchmark numbers published.
+A research direction rather than a system: whether a learned policy can sequence security tests better
+than a fixed scan order, and how to evaluate that honestly. Machine learning and reinforcement
+learning applied to automated vulnerability detection, anomaly detection and patch validation. No
+implementation and no benchmark numbers.
+
+[github.com/erfzrezr/ai-security-testing-platform](https://github.com/erfzrezr/ai-security-testing-platform)
 
 </details>
 
 <details>
 <summary><b>SOC home lab</b> — Wazuh and Splunk, attack simulation, detection engineering</summary>
 
-A virtual SOC: attacker VM, Windows and Linux victims, agent and forwarder log shipping into a SIEM,
-and an analyst workstation. Attacks are simulated and mapped to MITRE ATT&amp;CK techniques so each
-detection rule has something concrete to fire on. Built to practise the detection-and-response half
-of the job rather than only the offensive half.
+A virtual SOC with a SIEM, Wazuh and Splunk, for log monitoring. Attacks are simulated against the
+monitored hosts and the resulting security events analysed as incident response practice. MITRE
+ATT&amp;CK technique IDs are used as reference points for what a detection would have to catch. Built to
+practise the detection-and-response half of the job rather than only the offensive half.
+
+[github.com/erfzrezr/soc-home-lab](https://github.com/erfzrezr/soc-home-lab)
 
 </details>
 
@@ -173,8 +177,10 @@ of the job rather than only the offensive half.
 <summary><b>Web application penetration testing methodology</b> — OWASP WSTG-aligned assessment kit</summary>
 
 A repeatable assessment methodology structured on the twelve OWASP WSTG v4.2 test categories, with a
-per-category checklist, OWASP Top 10 2021 mappings, CVSS v3.1 scoring, and the report skeleton used
-to hand over findings. Nmap, Burp Suite and OWASP ZAP are the working tools.
+per-category checklist, OWASP Top 10 2021 mappings, CVSS v3.1 scoring, and a report structure. Nmap,
+Burp Suite and OWASP ZAP are the working tools.
+
+[github.com/erfzrezr/web-app-pentest-methodology](https://github.com/erfzrezr/web-app-pentest-methodology)
 
 </details>
 
@@ -185,9 +191,11 @@ A methodology writeup rather than a walkthrough: the repeatable process from rec
 enumeration, exploitation and privilege escalation to reporting. No flags, credentials, or
 room-specific exploit detail, in line with TryHackMe's guidance on not spoiling active rooms.
 
+[github.com/erfzrezr/thm-haunting-writeup](https://github.com/erfzrezr/thm-haunting-writeup)
+
 </details>
 
-<sub>Each project is documented as a methodology and design record. Supporting files land as they are written up.</sub>
+<sub>Each project is documented as a methodology and design record. Code and configuration appear where there is something to show.</sub>
 
 ## Education
 
