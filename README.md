@@ -219,5 +219,5 @@ room-specific exploit detail, in line with TryHackMe's guidance on not spoiling 
 -->
 
 <!-- LAST_UPDATED:START -->
-<sub><i>Updated automatically by GitHub Actions.</i></sub>
+Last updated: 2026-08-06
 <!-- LAST_UPDATED:END -->
