@@ -219,5 +219,5 @@ room-specific exploit detail, in line with TryHackMe's guidance on not spoiling 
 -->
 
 <!-- LAST_UPDATED:START -->
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 <!-- LAST_UPDATED:END -->
